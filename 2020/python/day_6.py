@@ -46,14 +46,15 @@
 # For each group, count the number of questions to which anyone answered "yes". What is the sum of those counts?
 
 import os
+from functools import reduce
 
 f = open(os.path.dirname(__file__) + "/../inputs/input_6.txt")
 
-groups = f.read().split('\n\n')
+groupStrings = f.read().split('\n\n')
 
 #groups = 'abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb'.split('\n\n')
 #groups = 'pkitmzfu\npuikeqf\n\nyafwqrdhpn\nbxoevlstjm\n\niohkjpefsmvadgcu\nplhbiucsgjtwaovfm\ngjmpuvifchqasko\nmsvxhogjiuafcp\nicvoujazphgmfs'.split('\n\n')
-groups = [group.split('\n') for group in groups]
+groupLines = [group.split('\n') for group in groupStrings]
 
 def count_questions_of_any(group):
     questions = []
@@ -67,8 +68,16 @@ def sum_any_questions(groups):
     questions = [count_questions_of_any(group) for group in groups]
     return sum(questions)
 
+def sum_any_alternative(groups):
+    counter = 0
+    for group in groups:
+        union_set = reduce(set.union, map(set, group.split()))
+        counter += len(union_set)
+    return counter
+
 print("2020 - Day 6 - Part 1")
-print(sum_any_questions(groups))
+print(sum_any_questions(groupLines))
+print(sum_any_alternative(groupStrings))
 # => 6170
 #    ====
 
@@ -132,7 +141,15 @@ def sum_all_questions(groups):
     questions = [count_questions_of_all(group) for group in groups]
     return sum(questions)
 
+def sum_all_alternative(groups):
+    counter = 0
+    for group in groups:
+        union_set = reduce(set.intersection, map(set, group.split()))
+        counter += len(union_set)
+    return counter
+
 print("\n2020 - Day 6 - Part 2")
-print(sum_all_questions(groups))
+print(sum_all_questions(groupLines))
+print(sum_all_alternative(groupStrings))
 # => 2947
 #    ====
