@@ -54,9 +54,19 @@ def get_two_summands(arr, target):
                 return [inputArr[i], inputArr[j]]
     raise Exception("There are no two numbers which add up to " + str(target))
 
+def get_two_summands_efficiently(arr, target):
+    arrSet = set(arr)
+    
+    for i in arr:
+        if target - i in arrSet:
+            return [i, target - i]
+
+    raise Exception("There are no two numbers which add up to " + str(target))
+
 print("2020 - Day 1 - Part 1")
 try:
-    [a, b] = get_two_summands(inputArr, 2020)
+    #[a, b] = get_two_summands(inputArr, 2020)
+    [a, b] = get_two_summands_efficiently(inputArr, 2020)
     print(a, "*", b, "=", a * b)
 except Exception as e:
     print(str(e))
@@ -86,7 +96,8 @@ def get_three_summands(arr, target):
     for i in range(len(arr) - 1, 0, -1):
         try:
             c = arr[i]
-            [a, b] = get_two_summands(arr, target - c)
+            #[a, b] = get_two_summands(arr, target - c)
+            [a, b] = get_two_summands_efficiently(arr, target - c)
             if(a + b + c == 2020):
                 return [a, b, c]
             else:
