@@ -111,7 +111,6 @@
 # no seats change state. How many seats end up occupied?
 
 import os
-import collections
 
 f = open(os.path.dirname(__file__) + "/../inputs/input_11.txt")
 
