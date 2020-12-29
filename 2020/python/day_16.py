@@ -86,7 +86,7 @@ def parse_rule(s):
 
 
 def parse_ticket(s):
-    return s.split(',')
+    return map(int, s.split(','))
 
 
 def read_intput(f):
@@ -108,25 +108,127 @@ def read_intput(f):
     return (rules, tickets)
 
 
-def check_fields(fields, rules):
-    filters = list(map(lambda r: lambda x: (x <
-                                            r[1] or (r[2] < x and x < r[3]) or r[4] < x), rules))
+def create_invalid_filters(rules):
+    return list(map(lambda r: lambda x: (x <
+                                         r[1] or (r[2] < x and x < r[3]) or r[4] < x), rules))
+
+
+def create_valid_filters(rules):
+    return list(map(lambda r: lambda x: (r[1] <= x <= r[2] or r[3] <= x <= r[4]), rules))
+
+
+def get_invalid_fields(fields, filters):
     invalid_fields = fields
     for f in filters:
         invalid_fields = list(filter(f, invalid_fields))
+        if not invalid_fields:
+            break
     return list(invalid_fields)
 
 
 def map_tickets_to_fields(tickets):
-    return [int(field) for ticket in tickets for field in ticket]
+    return [field for ticket in tickets for field in ticket]
 
 
 def calc_scanning_error(tickets, rules):
     fields = map_tickets_to_fields(tickets)
-    return functools.reduce(lambda a, b: a+b, check_fields(fields[3:], rules), 0)
+    filters = create_invalid_filters(rules)
+    return functools.reduce(lambda a, b: a+b, get_invalid_fields(fields[3:], filters), 0)
 
 
 with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
 
     (rules, tickets) = read_intput(f)
+    print("2020 - Day 16 - Part 1")
     print(calc_scanning_error(tickets, rules))
+
+
+# ----------------------------
+# Advent of Code 2020 - Day 16
+# Part 2: Ticket Translation
+# ----------------------------
+
+# Now that you've identified which tickets contain invalid values, discard
+# those tickets entirely. Use the remaining valid tickets to determine which
+# field is which.
+
+# Using the valid ranges for each field, determine what order the fields
+# appear on the tickets. The order is consistent between all tickets: if seat
+# is the third field, it is the third field on every ticket, including your
+# ticket.
+
+# For example, suppose you have the following notes:
+
+# class: 0-1 or 4-19
+# row: 0-5 or 8-19
+# seat: 0-13 or 16-19
+
+# your ticket:
+# 11,12,13
+
+# nearby tickets:
+# 3,9,18
+# 15,1,5
+# 5,14,9
+# Based on the nearby tickets in the above example, the first position must
+# be row, the second position must be class, and the third position must be
+# seat; you can conclude that in your ticket, class is 12, row is 11, and
+# seat is 13.
+
+# Once you work out which field is which, look for the six fields on your
+# ticket that start with the word departure. What do you get if you multiply
+# those six values together?
+
+def ticket_is_valid(ticket, rules):
+    invalid_fields = get_invalid_fields(ticket, create_invalid_filters(rules))
+    if invalid_fields:
+        return False
+    return True
+
+
+def get_valid_tickets(tickets, rules):
+    return list(filter(lambda t: ticket_is_valid(t, rules), tickets))
+
+
+def find_possible_field_rules(tickets, rules):
+    filters = create_valid_filters(rules)
+    possible_rules = [range(len(rules))] * len(tickets[0])
+    for ticket in tickets:
+        for field in range(len(possible_rules)):
+            possible_rules[field] = list(
+                filter(lambda i: filters[i](ticket[field]), possible_rules[field]))
+
+    return list(map(lambda r: [rules[i] for i in r], possible_rules))
+
+
+def determine_rule_order(possible_rules, rules):
+    order = {}
+    sorted_possible_rules = sorted([
+        [len(rules), i, rules] for i, rules in enumerate(possible_rules)])
+
+    for field in sorted_possible_rules:
+        _, i, rules = field
+        filtered = list(filter(lambda r: r[0] not in order.keys(), rules))
+        rule = filtered[0]
+        order[rule[0]] = i
+
+    return order
+
+
+def calc_departure_field_product(my_ticket, order):
+    departure_keys = filter(lambda f: 'departure' in f, order.keys())
+    result = 1
+    for key in departure_keys:
+        result *= my_ticket[order[key]]
+    return result
+
+
+with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
+
+    (rules, tickets) = read_intput(f)
+    valid_tickets = get_valid_tickets(tickets, rules)
+    possible_rules = find_possible_field_rules(valid_tickets, rules)
+    order = determine_rule_order(possible_rules, rules)
+
+    print("2020 - Day 16 - Part 2")
+    print(calc_departure_field_product(tickets[0], order))
