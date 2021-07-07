@@ -86,7 +86,7 @@ def parse_rule(s):
 
 
 def parse_ticket(s):
-    return map(int, s.split(','))
+    return list(map(int, s.split(',')))
 
 
 def read_intput(f):
@@ -141,6 +141,8 @@ with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
     (rules, tickets) = read_intput(f)
     print("2020 - Day 16 - Part 1")
     print(calc_scanning_error(tickets, rules))
+    # => 26053
+    #    =====
 
 
 # ----------------------------
@@ -232,3 +234,5 @@ with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
 
     print("2020 - Day 16 - Part 2")
     print(calc_departure_field_product(tickets[0], order))
+    # => 1515506256421
+    #    =============
