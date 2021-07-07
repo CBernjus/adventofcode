@@ -107,3 +107,75 @@ with open(os.path.dirname(__file__) + "/../inputs/input_18.txt") as f:
     print(sum(evaluate1(line) for line in lines))
     # => 30753705453324
     #    ==============
+
+
+# ----------------------------
+# Advent of Code 2020 - Day 18
+# Part 2: Operation Order
+# ----------------------------
+
+# You manage to answer the child's questions and they finish part 1 of their
+# homework, but get stuck when they reach the next section: advanced math.
+
+# Now, addition and multiplication have different precedence levels, but
+# they're not the ones you're familiar with. Instead, addition is evaluated
+# before multiplication.
+
+# For example, the steps to evaluate the expression 1 + 2 * 3 + 4 * 5 + 6 are
+# now as follows:
+
+# 1 + 2 * 3 + 4 * 5 + 6
+#   3   * 3 + 4 * 5 + 6
+#   3   *   7   * 5 + 6
+#   3   *   7   *  11
+#      21       *  11
+#          231
+# Here are the other examples from above:
+
+# 1 + (2 * 3) + (4 * (5 + 6)) still becomes 51.
+# 2 * 3 + (4 * 5) becomes 46.
+# 5 + (8 * 3 + 9 + 3 * 4 * 3) becomes 1445.
+# 5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4)) becomes 669060.
+# ((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2 becomes 23340.
+
+# What do you get if you add up the results of evaluating the homework
+# problems using these new rules?
+
+def calculate2(tokens: List[str]) -> str:
+    # print(tokens)
+    equation = ""
+    num1 = tokens.pop(0)
+    operators = list(zip(tokens[0::2], tokens[1::2]))
+    for i, (operator, num2) in enumerate(operators):
+        # print('bef', i, len(operators), repr(equation), num1, operator, num2)
+        if operator == '+':
+            num1 = str(eval(num1 + operator + num2))
+        if operator == '*':
+            equation += num1 + '*'
+            num1 = num2
+        if i == len(operators) - 1:
+            equation += num1
+        # print('aft', i, len(operators), repr(equation), num1, operator, num2, '\n')
+
+    return str(eval(equation))
+
+
+def evaluate2(line: str) -> int:
+    # print(line)
+    tokens = line.split(' ')
+    parens = find_parens(tokens)
+
+    while len(parens) != 0:
+        _, start, end = parens.pop()
+        total = calculate2(tokens[start + 1:end])
+        tokens = tokens[:start] + [total] + tokens[end + 1:]
+
+    return int(calculate2(tokens))
+
+
+with open(os.path.dirname(__file__) + "/../inputs/input_18.txt") as f:
+    lines = read_input(f)
+    print("2020 - Day 18 - Part 2")
+    print(sum(evaluate2(line) for line in lines))
+    # => 244817530095503
+    #    ===============
