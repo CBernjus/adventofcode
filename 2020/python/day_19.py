@@ -155,6 +155,7 @@ def count_valid_messages(messages, regex):
     return len([m for m in messages if bool(re.fullmatch(regex, m))])
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_19.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_19.txt") as f:
     rules, messages = read_input(f)
 
@@ -271,6 +272,7 @@ with open(os.path.dirname(__file__) + "/../inputs/input_19.txt") as f:
 
 # After updating rules 8 and 11, how many messages completely match rule 0?
 
+# with open(os.path.dirname(__file__) + "/../examples/example_19.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_19.txt") as f:
     rules, messages = read_input(f)
 

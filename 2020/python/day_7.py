@@ -52,16 +52,18 @@
 
 import os
 import re
- 
+
+# f = open(os.path.dirname(__file__) + "/../examples/example_7.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_7.txt")
 
 rules = f.read().split('\n')
 
 pattern = re.compile(r'(\d )?(\w+ \w+) bag[s]?')
 
+
 def get_parents(rules):
     parents = {}
-    for rule in rules:    
+    for rule in rules:
         [parent, *children] = [m.group(2) for m in pattern.finditer(rule)]
         for match in children:
             if match == "no other":
@@ -70,6 +72,7 @@ def get_parents(rules):
                 parents[match] = []
             parents[match].append(parent)
     return parents
+
 
 def get_bags_containing(color, parents):
     bags = set([])
@@ -80,9 +83,11 @@ def get_bags_containing(color, parents):
             bags |= (get_bags_containing(parent, parents))
     return bags
 
+
 def num_of_bags_containing(color):
     bags = get_bags_containing(color, get_parents(rules))
     return len(bags)
+
 
 print("2020 - Day 7 - Part 1")
 print(num_of_bags_containing('shiny gold'))
@@ -128,10 +133,12 @@ print(num_of_bags_containing('shiny gold'))
 
 # How many individual bags are required inside your single shiny gold bag?
 
+
 def get_children(rules):
     children = {}
-    for rule in rules:    
-        [(parentName, _), *rest] = [(m.group(2), m.group(1)) for m in pattern.finditer(rule)]
+    for rule in rules:
+        [(parentName, _), *rest] = [(m.group(2), m.group(1))
+                                    for m in pattern.finditer(rule)]
         if parentName not in children:
             children[parentName] = []
         for (childName, childNum) in rest:
@@ -140,12 +147,14 @@ def get_children(rules):
             children[parentName].append((childName, int(childNum)))
     return children
 
+
 def num_of_contained_bags(color, children):
     num_bags = 0
     if color in children:
         for (name, num) in children[color]:
             num_bags += num * ((num_of_contained_bags(name, children)) + 1)
     return num_bags
+
 
 print("\n2020 - Day 7 - Part 2")
 print(num_of_contained_bags('shiny gold', get_children(rules)))

@@ -74,6 +74,7 @@ import os
 import re
 import itertools
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_14.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_14.txt")
 
 instructions = f.read().split('\n')

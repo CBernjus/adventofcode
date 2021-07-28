@@ -101,6 +101,7 @@ def evaluate1(line: str) -> int:
     return int(calculate1(tokens))
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_18.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_18.txt") as f:
     lines = read_input(f)
     print("2020 - Day 18 - Part 1")
@@ -173,6 +174,7 @@ def evaluate2(line: str) -> int:
     return int(calculate2(tokens))
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_18.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_18.txt") as f:
     lines = read_input(f)
     print("2020 - Day 18 - Part 2")

@@ -2,7 +2,7 @@
 # Advent of Code 2020 - Day 11
 # Part 1: Seating System
 # ----------------------------
- 
+
 # Your plane lands with plenty of time to spare. The final leg of your
 # journey is a ferry that goes directly to the tropical island where you can
 # finally start your vacation. As you reach the waiting area to board the
@@ -107,16 +107,18 @@
 # further applications of these rules cause no seats to change state! Once
 # people stop moving around, you count 37 occupied seats.
 
-#Simulate your seating area by applying the seating rules repeatedly until
+# Simulate your seating area by applying the seating rules repeatedly until
 # no seats change state. How many seats end up occupied?
 
 import os
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_11.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_11.txt")
 
 layout = f.read().split('\n')
 height = len(layout)
 width = len(layout[0])
+
 
 def get_seats(layout):
     seats = {}
@@ -128,6 +130,7 @@ def get_seats(layout):
                 seats[(x, y)] = False
 
     return seats
+
 
 def print_layout(seats):
     for y in range(height):
@@ -142,10 +145,12 @@ def print_layout(seats):
         print()
     print()
 
+
 def simulate_1_step(seats):
     new_seats = {}
     for (x, y) in seats:
-        neighbor_indices = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), (x - 1, y), (x + 1, y), (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
+        neighbor_indices = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1),
+                            (x - 1, y), (x + 1, y), (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
         neighbors = 0
         for (nx, ny) in neighbor_indices:
             if seats.get((nx, ny)):
@@ -157,8 +162,9 @@ def simulate_1_step(seats):
             new_seats[(x, y)] = True
         else:
             new_seats[(x, y)] = seat
-    #print_layout(new_seats)
+    # print_layout(new_seats)
     return new_seats
+
 
 def simulate_1(layout):
     seats = get_seats(layout)
@@ -169,12 +175,14 @@ def simulate_1(layout):
 
     return seats
 
+
 def count_occupied(seats):
     count = 0
     for (x, y) in seats:
         if seats.get((x, y)):
             count += 1
     return count
+
 
 print("2020 - Day 11 - Part 1")
 print(count_occupied(simulate_1(layout)))
@@ -317,10 +325,11 @@ print(count_occupied(simulate_1(layout)))
 dirs = 8
 dx = [-1, 0, 1, -1, 1, -1, 0, 1]
 dy = [-1, -1, -1, 0, 0, 1, 1, 1]
-        
+
 
 def in_bounds(x, y):
     return -1 < x < width and -1 < y < height
+
 
 def simulate_2_step(seats):
     new_seats = {}
@@ -333,7 +342,7 @@ def simulate_2_step(seats):
             while(in_bounds(nx, ny) and seats.get((nx, ny)) == None):
                 nx += dx[d]
                 ny += dy[d]
-            
+
             if seats.get((nx, ny)):
                 neighbors += 1
         seat = seats.get((x, y))
@@ -343,8 +352,9 @@ def simulate_2_step(seats):
             new_seats[(x, y)] = True
         else:
             new_seats[(x, y)] = seat
-    #print_layout(new_seats)
+    # print_layout(new_seats)
     return new_seats
+
 
 def simulate_2(layout):
     seats = get_seats(layout)
@@ -354,6 +364,7 @@ def simulate_2(layout):
         step = simulate_2_step(seats)
 
     return seats
+
 
 print("\n2020 - Day 11 - Part 2")
 print(count_occupied(simulate_2(layout)))

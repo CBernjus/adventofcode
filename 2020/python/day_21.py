@@ -92,6 +92,7 @@ def find_allergic_ingredients(foods: List[Tuple[List[str], List[str]]]) -> Set[s
     return set().union(*possible.values())
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_21.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_21.txt") as f:
     foods = read_foods(f)
     foodCount = count_ingredients(foods)
@@ -139,6 +140,7 @@ def map_allergens_to_ingredients(foods: List[Tuple[List[str], List[str]]]) -> Di
     return allergenMap
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_21.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_21.txt") as f:
     foods = read_foods(f)
     allergenMap = map_allergens_to_ingredients(foods)

@@ -17,9 +17,9 @@
 # To try to debug the problem, they have created a list (your puzzle input)
 # of passwords (according to the corrupted database) and the corporate policy
 # when that password was set.
- 
+
 # For example, suppose you have the following list:
- 
+
 # 1-3 a: abcde
 # 1-3 b: cdefg
 # 2-9 c: ccccccccc
@@ -28,21 +28,23 @@
 # policy indicates the lowest and highest number of times a given letter must
 # appear for the password to be valid. For example, 1-3 a means that the
 # password must contain a at least 1 time and at most 3 times.
- 
+
 # In the above example, 2 passwords are valid. The middle password, cdefg, is
 # not; it contains no instances of b, but needs at least 1. The first and
 # third passwords are valid: they contain one a or nine c, both within the
 # limits of their respective policies.
- 
+
 # How many passwords are valid according to their policies?
 
 import os
 import re
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_2.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_2.txt")
 passwords = f.read()
 
 pattern = re.compile(r'(\d+)-(\d+) (\w+): (\w+)')
+
 
 def num_correct_passwords_old(passwords):
     correctPasswords = 0
@@ -59,6 +61,7 @@ def num_correct_passwords_old(passwords):
             correctPasswords += 1
 
     return correctPasswords
+
 
 print("2020 - Day 2 - Part 1")
 print(str(num_correct_passwords_old(passwords)))
@@ -93,6 +96,7 @@ print(str(num_correct_passwords_old(passwords)))
 # How many passwords are valid according to the new interpretation of the
 # policies?
 
+
 def num_correct_passwords_new(passwords):
     correctPasswords = 0
 
@@ -104,6 +108,7 @@ def num_correct_passwords_new(passwords):
             correctPasswords += 1
 
     return correctPasswords
+
 
 print("\n2020 - Day 2 - Part 1")
 print(str(num_correct_passwords_new(passwords)))

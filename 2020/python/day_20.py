@@ -306,6 +306,7 @@ def prod(numbers: List[int]) -> int:
     return prod
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_20.txt") as f:
 with open(os.path.dirname(__file__) + "/../examples/example_20.txt") as f:
     tiles = read_tiles(f)
     print("2020 - Day 20 - Part 1")

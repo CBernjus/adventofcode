@@ -38,9 +38,11 @@
 
 import os
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_1.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_1.txt")
 
 inputArr = sorted(map(int, f.read().split()))
+
 
 def get_two_summands(arr, target):
     for i in range(len(inputArr)):
@@ -54,14 +56,16 @@ def get_two_summands(arr, target):
                 return [inputArr[i], inputArr[j]]
     raise Exception("There are no two numbers which add up to " + str(target))
 
+
 def get_two_summands_efficiently(arr, target):
     arrSet = set(arr)
-    
+
     for i in arr:
         if target - i in arrSet:
             return [i, target - i]
 
     raise Exception("There are no two numbers which add up to " + str(target))
+
 
 print("2020 - Day 1 - Part 1")
 try:
@@ -101,9 +105,11 @@ def get_three_summands(arr, target):
             if(a + b + c == 2020):
                 return [a, b, c]
             else:
-                raise Exception("There are no three numbers which add up to " + str(target))
+                raise Exception(
+                    "There are no three numbers which add up to " + str(target))
         except:
             continue
+
 
 print("\n2020 - Day 1 - Part 2")
 try:

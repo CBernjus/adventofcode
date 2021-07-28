@@ -75,6 +75,7 @@
 from functools import reduce
 import os
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_13.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_13.txt")
 
 time = int(f.readline())

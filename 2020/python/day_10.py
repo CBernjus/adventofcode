@@ -121,10 +121,12 @@
 
 import os
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_10.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_10.txt")
 
 adapters = list(map(int, f.read().split('\n')))
 adapters.sort()
+
 
 def convert_to_jumps(adapters):
     jumps = [adapters[0]]
@@ -133,9 +135,10 @@ def convert_to_jumps(adapters):
         prev = adapters[i - 1]
         curr = adapters[i]
         jumps.append(curr - prev)
-    
+
     jumps.append(3)
     return jumps
+
 
 def count_jumps(jumps):
     counts = {
@@ -149,9 +152,11 @@ def count_jumps(jumps):
 
     return counts
 
+
 def get_answer(adapters):
     jumps = count_jumps(convert_to_jumps(adapters))
     return jumps[1] * jumps[3]
+
 
 print("2020 - Day 10 - Part 1")
 print(str(get_answer(adapters)))
@@ -233,10 +238,12 @@ class arrangement_iterator:
         self.prevprev = 0
         self.prev = 0
         self.curr = 1
-    
+
     def next(self):
-        [self.prevprev, self.prev, self.curr] = [self.prev, self.curr, self.prevprev + self.prev + self.curr]
+        [self.prevprev, self.prev, self.curr] = [self.prev,
+                                                 self.curr, self.prevprev + self.prev + self.curr]
         return self.prev
+
 
 def count_chains_of_ones(adapters):
     jumps = convert_to_jumps(adapters)
@@ -255,23 +262,26 @@ def count_chains_of_ones(adapters):
             else:
                 chains[chain] = 1
             chain = 0
-    
+
     return chains
 
 # TODO: jumps of 2 are not considered, because the input does not contain any
+
+
 def num_of_arrangements(adapters):
     chains = count_chains_of_ones(adapters)
 
     iterator = arrangement_iterator()
 
     arrangements = 1
-    
+
     for length in range(max(chains) + 1):
         length_arrangements = iterator.next()
         if length in chains:
             arrangements *= pow(length_arrangements, chains[length])
-        
+
     return arrangements
+
 
 print("\n2020 - Day 10 - Part 2")
 print(str(num_of_arrangements(adapters)))

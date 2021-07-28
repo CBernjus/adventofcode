@@ -63,17 +63,21 @@
 
 import os
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_5.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_5.txt")
+
 
 def get_row(path):
     path = path.replace('F', '0')
     path = path.replace('B', '1')
     return int(path, base=2)
 
+
 def get_seat_in_row(path):
     path = path.replace('L', '0')
     path = path.replace('R', '1')
     return int(path, base=2)
+
 
 def get_seat_number(path):
     if(len(path) != 10):
@@ -81,6 +85,7 @@ def get_seat_number(path):
     row = get_row(path[0:7])
     seat = get_seat_in_row(path[7:10])
     return row * 8 + seat
+
 
 seats = [get_seat_number(path.strip()) for path in f.readlines()]
 
@@ -108,10 +113,12 @@ print(max(seats))
 
 seats += [i for i in range(0, 8)] + [i for i in range(128 * 8, 128 * 8 + 8)]
 
+
 def get_remaining_seat(seats, totalSeats):
     for seat in range(0, totalSeats):
         if seat not in seats:
             return seat
+
 
 print("\n2020 - Day 5 - Part 2")
 print("My seat is", get_remaining_seat(seats, 129 * 8))

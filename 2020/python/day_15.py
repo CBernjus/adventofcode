@@ -109,6 +109,7 @@ class Game(object):
             self.next()
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_15.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_15.txt") as f:
 
     starting_numbers = map(int, f.readline().split(','))

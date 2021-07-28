@@ -76,9 +76,11 @@ import os
 import functools
 import operator
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_3.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_3.txt")
 
 lines = f.readlines()
+
 
 def check_for_trees(lines, x, y, dx, dy):
     counter = 0
@@ -92,8 +94,9 @@ def check_for_trees(lines, x, y, dx, dy):
 
         curr_x += dx
         curr_x %= len(line) - 1
-    
+
     return counter
+
 
 print("2020 - Day 3 - Part 1")
 print(str(check_for_trees(lines, 0, 0, 3, 1)), "trees encountered.")
@@ -126,7 +129,8 @@ print(str(check_for_trees(lines, 0, 0, 3, 1)), "trees encountered.")
 
 slopes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 
-encounteredTrees = [check_for_trees(lines, 0, 0, dx, dy) for (dx, dy) in slopes]
+encounteredTrees = [check_for_trees(lines, 0, 0, dx, dy)
+                    for (dx, dy) in slopes]
 
 print("2020 - Day 3 - Part 2")
 print(functools.reduce(operator.mul, encounteredTrees, 1))

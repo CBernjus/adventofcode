@@ -78,22 +78,28 @@
 import os
 import itertools
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_9.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_9.txt")
 
 numbers = list(map(int, f.read().split('\n')))
 
+
 def get_possible_numbers(numbers, preambleSize):
-    preambleCombinations = list(itertools.combinations(numbers[:preambleSize], 2))
-    possibleNumbers = set(itertools.starmap(lambda x, y: x + y, preambleCombinations))
+    preambleCombinations = list(
+        itertools.combinations(numbers[:preambleSize], 2))
+    possibleNumbers = set(itertools.starmap(
+        lambda x, y: x + y, preambleCombinations))
     return possibleNumbers
 
 
 def get_faulty_number(numbers, preambleSize=25):
     for i in range(preambleSize, len(numbers)):
-        possibleNumbers = get_possible_numbers(numbers[i - preambleSize : i], preambleSize)
+        possibleNumbers = get_possible_numbers(
+            numbers[i - preambleSize: i], preambleSize)
         if numbers[i] not in possibleNumbers:
             return numbers[i]
     return -1
+
 
 print("2020 - Day 9 - Part 1")
 print(str(get_faulty_number(numbers)))
@@ -142,6 +148,7 @@ print(str(get_faulty_number(numbers)))
 
 # What is the encryption weakness in your XMAS-encrypted list of numbers?
 
+
 def find_contiguous_summands(numbers, targetSum):
     for i in range(len(numbers)):
         currSum = 0
@@ -154,9 +161,11 @@ def find_contiguous_summands(numbers, targetSum):
         if currSum == targetSum:
             return summands
 
+
 def find_encryption_weakness(numbers, faulty_number):
     summands = find_contiguous_summands(numbers, faulty_number)
     return min(summands) + max(summands)
+
 
 print("\n2020 - Day 9 - Part 2")
 print(str(find_encryption_weakness(numbers, get_faulty_number(numbers))))

@@ -58,6 +58,7 @@
 import os
 import math
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_12.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_12.txt")
 
 instructions = list(map(lambda s: (s[:1], int(s[1:])), f.read().split('\n')))

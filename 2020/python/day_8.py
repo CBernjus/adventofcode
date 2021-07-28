@@ -75,7 +75,8 @@
 
 import os
 import re
- 
+
+# f = open(os.path.dirname(__file__) + "/../examples/example_8.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_8.txt")
 
 lines = f.read().split('\n')
@@ -84,13 +85,14 @@ pattern = re.compile(r'(acc|jmp|nop) ([+-]\d+)')
 
 instructions = list(map(lambda l: re.match(pattern, l).groups(), lines))
 
+
 def next(instructions, address, acc=0):
     if address >= len(instructions):
         return (True, acc)
     if instructions[address]:
         (operator, argument) = instructions[address]
         instructions[address] = None
-        
+
         if operator == 'jmp':
             address += int(argument)
         else:
@@ -105,8 +107,10 @@ def next(instructions, address, acc=0):
         else:
             return (False, acc)
 
+
 def run(instructions):
     return next(list(instructions), 0, 0)[1]
+
 
 print("2020 - Day 8 - Part 1")
 print(str(run(instructions)))
@@ -170,6 +174,7 @@ print(str(run(instructions)))
 # (to nop) or nop (to jmp). What is the value of the accumulator after the
 # program terminates?
 
+
 def toggle_instr(instructions, address):
     toggled_instructions = list(instructions)
     instruction = instructions[address]
@@ -179,8 +184,10 @@ def toggle_instr(instructions, address):
         toggled_instructions[address] = ('jmp', instruction[1])
     return toggled_instructions
 
+
 def test(instructions):
     return next(instructions, 0, 0)
+
 
 def repair_program(instructions):
     for address in range(len(instructions)):
@@ -192,6 +199,7 @@ def repair_program(instructions):
             if result[0]:
                 return result[1]
     raise Exception('Program cannot be repaired')
+
 
 print("\n2020 - Day 8 - Part 12")
 print(str(repair_program(instructions)))

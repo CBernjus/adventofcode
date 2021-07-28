@@ -249,6 +249,7 @@ def read_3d_grid(f, iterations) -> Grid:
     return grid
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_17.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_17.txt") as f:
     grid = read_3d_grid(f, iterations)
     for i in range(iterations):
@@ -546,6 +547,7 @@ def read_4d_grid(f, iterations) -> Grid:
     return grid
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_17.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_17.txt") as f:
     grid = read_4d_grid(f, iterations)
     for i in range(iterations):

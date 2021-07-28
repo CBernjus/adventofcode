@@ -136,6 +136,7 @@ def calc_scanning_error(tickets, rules):
     return functools.reduce(lambda a, b: a+b, get_invalid_fields(fields[3:], filters), 0)
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_16.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
 
     (rules, tickets) = read_intput(f)
@@ -225,6 +226,7 @@ def calc_departure_field_product(my_ticket, order):
     return result
 
 
+# with open(os.path.dirname(__file__) + "/../examples/example_16.txt") as f:
 with open(os.path.dirname(__file__) + "/../inputs/input_16.txt") as f:
 
     (rules, tickets) = read_intput(f)

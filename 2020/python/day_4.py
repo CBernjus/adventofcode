@@ -67,13 +67,15 @@
 import os
 import re
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_4.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_4.txt")
 
 passportStrings = f.read().split('\n\n')
 
 pattern = re.compile(r'(\w+):(\S+)')
 
-requiredKeys = [ 'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid' ]
+requiredKeys = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
+
 
 def parse_passports(passportStrings):
     passports = []
@@ -85,8 +87,9 @@ def parse_passports(passportStrings):
             [key, value] = match.groups()
             passport[key] = value
 
-        passports.append(passport)    
+        passports.append(passport)
     return passports
+
 
 def check_passport_fields(passport, requiredKeys):
     for key in requiredKeys:
@@ -94,14 +97,16 @@ def check_passport_fields(passport, requiredKeys):
             return False
     return True
 
+
 def num_of_complete_passports(passports):
     counter = 0
 
     for passport in passports:
         if check_passport_fields(passport, requiredKeys):
             counter += 1
-            
+
     return counter
+
 
 passports = parse_passports(passportStrings)
 
@@ -172,18 +177,18 @@ print(str(num_of_complete_passports(passports)), "valid passports")
 # pid:3556412378 byr:2007
 
 # Here are some valid passports:
- 
+
 # pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
 # hcl:#623a2f
- 
+
 # eyr:2029 ecl:blu cid:129 byr:1989
 # iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
- 
+
 # hcl:#888785
 # hgt:164cm byr:2001 iyr:2015 cid:88
 # pid:545766238 ecl:hzl
 # eyr:2022
- 
+
 # iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 
 # Count the number of valid passports - those that have all required fields
@@ -196,10 +201,11 @@ validations = {
     'eyr': lambda s: len(s) == 4 and 2020 <= int(s) <= 2030,
     'hgt': lambda s: re.match(r'(1[5-8][0-9]cm|19[0-3]cm|59in|6[0-9]in|7[0-6]in)', s),
     'hcl': lambda s: re.match(r'#[a-f0-9]{6}', s),
-    'ecl': lambda s: s in [ 'amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth' ],
+    'ecl': lambda s: s in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'],
     'pid': lambda s: len(s) == 9 and s.isnumeric(),
     'cid': lambda s: True
 }
+
 
 def validate_passport_data(passport):
     for key in passport:
@@ -207,16 +213,19 @@ def validate_passport_data(passport):
             return False
     return True
 
+
 def num_of_valid_passports(passport):
     counter = 0
 
     for passport in passports:
         if check_passport_fields(passport, requiredKeys) and validate_passport_data(passport):
             counter += 1
-            
+
     return counter
 
+
 print("\n2020 - Day 4 - Part 2")
-print(str(num_of_valid_passports(passportStrings)), "valid passports with valid data")
+print(str(num_of_valid_passports(passportStrings)),
+      "valid passports with valid data")
 # => 172
 #    ===

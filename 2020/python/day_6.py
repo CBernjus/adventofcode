@@ -66,6 +66,7 @@
 import os
 from functools import reduce
 
+# f = open(os.path.dirname(__file__) + "/../examples/example_6.txt")
 f = open(os.path.dirname(__file__) + "/../inputs/input_6.txt")
 
 groupStrings = f.read().split('\n\n')
