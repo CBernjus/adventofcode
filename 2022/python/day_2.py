@@ -63,31 +63,20 @@ from typing import TextIO, List, Tuple, Mapping
 # log.basicConfig(level=log.DEBUG, format='[%(levelname)s] %(message)s')
 log.basicConfig(level=log.INFO, format='[%(levelname)s] %(message)s')
 
-
-def get_hand_value(hand: str) -> int:
-    match hand:
-        case 'A' | 'X':
-            return 1
-        case 'B' | 'Y':
-            return 2
-        case 'C' | 'Z':
-            return 3
+HAND_VALUES: Mapping[str, int] = {'A': 1, 'X': 1,
+                                  'B': 2, 'Y': 2,
+                                  'C': 3, 'Z': 3}
 
 
 def you_win(opponents_value: int, your_value: int) -> bool:
-    # edge cases: rock defeats scissors
-    opponents_value += 3 if opponents_value == 1 and your_value == 3 else 0
-    your_value += 3 if opponents_value == 3 and your_value == 1 else 0
-    return your_value > opponents_value
+    return (your_value - opponents_value) % 3 == 1
 
 
 def is_draw(opponents_value: int, your_value: int) -> bool:
     return your_value == opponents_value
 
 
-def get_winning_score(opponents_hand: str, your_hand: str) -> int:
-    opponents_value = get_hand_value(opponents_hand)
-    your_value = get_hand_value(your_hand)
+def get_winning_score(opponents_value: int, your_value: int) -> int:
     if is_draw(opponents_value, your_value):
         log.debug(f"opponent: {opponents_value}, you: {your_value} => DRAW (3) => {your_value + 3}")
         return 3
@@ -98,9 +87,13 @@ def get_winning_score(opponents_hand: str, your_hand: str) -> int:
     return 0
 
 
+def get_winning_score_by_hand(opponents_hand: str, your_hand: str) -> int:
+    return get_winning_score(HAND_VALUES[opponents_hand], HAND_VALUES[your_hand])
+
+
 def calc_score(hands: Tuple[str, str]) -> int:
     opponents_hand, your_hand = hands
-    return get_hand_value(your_hand) + get_winning_score(opponents_hand, your_hand)
+    return HAND_VALUES[your_hand] + get_winning_score_by_hand(opponents_hand, your_hand)
 
 
 def list_play_guide(file: TextIO) -> List[Tuple[str, str]]:
@@ -177,7 +170,7 @@ def deduce_score(data: Tuple[str, str]) -> int:
     opponents_hand, outcome = data
     your_hand = deduce_hand(opponents_hand, outcome)
     log.debug(f"opponent: {opponents_hand}, you need a {OUTCOME_STR[outcome]} => you: {your_hand}")
-    return get_hand_value(your_hand) + get_winning_score(opponents_hand, your_hand)
+    return HAND_VALUES[your_hand] + get_winning_score_by_hand(opponents_hand, your_hand)
 
 
 # with open(os.path.dirname(__file__) + "/../examples/example_2.txt") as f:
