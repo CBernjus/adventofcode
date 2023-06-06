@@ -107,10 +107,10 @@ with open(os.path.dirname(__file__) + "/../inputs/input_3.txt") as f:
 print()
 
 
-# ---------------------------
-# Advent of Code 2022 - Day X
-# Part 2: XXX
-# ---------------------------
+# -------------------------------
+# Advent of Code 2022 - Day 3
+# Part 2: Rucksack Reorganisation
+# -------------------------------
 
 # As you finish identifying the misplaced items, the Elves come to you with
 # another issue.
