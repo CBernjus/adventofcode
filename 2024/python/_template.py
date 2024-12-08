@@ -1,40 +1,35 @@
-DAY = 1
-# ---------------------------
-# Advent of Code 2024 - Day X
-# Part 1: XXX
-# ---------------------------
+from solution_base import AocSolution, solution, InputSource
 
-#
 
-from __future__ import annotations
-import os
-from typing import Dict, List, Tuple
+class DayX(AocSolution):
 
-with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-# with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
+    @property
+    def title(self) -> str:
+        return "Puzzle Title"  # TODO: Replace with puzzle title
 
-    arr = list(map(int, f.readlines()))
+    @solution()  # Add expected result when known
+    def solve_part1(self, input_data: InputSource) -> int:
+        """Solve part 1 of the puzzle."""
+        self.logger.debug("Starting part 1 solution")
 
-    print(f"2024 - Day {DAY} - Part 1")
-    print("question")
-    # =>
-    #    =======
+        # Your solution here
+        return 0
 
-print()
+    @solution()  # Add expected result when known
+    def solve_part2(self, input_data: str) -> int:
+        """Solve part 2 of the puzzle."""
+        self.logger.debug("Starting part 2 solution")
 
-# ---------------------------
-# Advent of Code 2024 - Day X
-# Part 2: XXX
-# ---------------------------
+        # Your solution here
+        return 0
 
-#
 
-with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-# with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
+if __name__ == "__main__":
+    solution = DayX()
+    part = 1
 
-    arr = list(map(int, f.readlines()))
+    # Run with example data in debug mode
+    solution.run(part=part, is_example=True, debug=True)
 
-    print(f"2024 - Day {DAY} - Part 2")
-    print("question")
-    # =>
-    #    ==========
+    # Run both parts with real input
+    # solution.run()
