@@ -9,11 +9,11 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from typing import Any, Optional, List, Iterator, TypeVar
+
 from colorama import Style, init
 
 
 class CustomFormatter(logging.Formatter):
-
     green = "\x1b[32;20m"
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
@@ -48,7 +48,7 @@ def bold(s: str) -> str:
 
 
 class ProgressStatus:
-    def __init__(self, total: int, desc: str = "Progress", show_count: bool = True):
+    def __init__(self, total: int, desc: str = "Progress", show_count: bool = True, verbose: bool = True):
         """
         Initialize progress status bar
 
@@ -61,6 +61,7 @@ class ProgressStatus:
         self.current = 0
         self.desc = desc
         self.show_count = show_count
+        self.verbose = verbose
         self.terminal_width = shutil.get_terminal_size().columns
         self._last_len = 0
         self.extras = {}
@@ -75,7 +76,8 @@ class ProgressStatus:
         """
         self.current += step
         self.extras.update(kwargs)
-        self._print_progress()
+        if self.verbose:
+            self._print_progress()
 
     def _print_progress(self) -> None:
         percentage = (self.current / self.total) * 100
@@ -98,26 +100,11 @@ class ProgressStatus:
         print(f"\r{message.ljust(self.terminal_width)}", end="", file=sys.stdout)
         sys.stdout.flush()
 
-    @staticmethod
-    def finish() -> None:
+    def finish(self) -> None:
         """Complete the progress and move to next line"""
-        print(file=sys.stdout)
-        sys.stdout.flush()
-
-
-def create_progress(total: int, desc: str = "Progress", show_count: bool = True) -> ProgressStatus:
-    """
-    Create a new progress status tracker
-
-    Args:
-        total: Total number of items
-        desc: Description to show before the progress
-        show_count: Whether to show count in addition to percentage
-
-    Returns:
-        ProgressStatus object for updating progress
-    """
-    return ProgressStatus(total, desc, show_count)
+        if self.verbose:
+            print(file=sys.stdout)
+            sys.stdout.flush()
 
 
 T = TypeVar('T')
@@ -177,6 +164,11 @@ class InputSource:
                 return [line.strip() for line in f.readlines()]
             return [line.rstrip('\n') for line in f.readlines()]
 
+    def read_lists_of_integers(self, seperator: str = None) -> List[List[int]]:
+        """Read input as list of lists of integers, split by seperator (default: None -> any whitespace)"""
+        string_lists = [line.strip().split(seperator) for line in self.read_lines()]
+        return [[int(num.strip()) for num in l] for l in string_lists]
+
     def read_sections(self) -> List[str]:
         """Read input split by double newlines"""
         return self.read_raw().split('\n\n')
@@ -189,7 +181,7 @@ class InputSource:
         """Read input as 2D grid of single digits"""
         return [[int(d) for d in line] for line in self.read_lines()]
 
-    def read_grid(self) -> List[List[str]]:
+    def read_char_grid(self) -> List[List[str]]:
         """Read input as 2D character grid"""
         return [list(line) for line in self.read_lines()]
 
@@ -222,6 +214,11 @@ def solution(expected_result: Any = None):
     return decorator
 
 
+def _print_verbose(message: str, verbose: bool) -> None:
+    if verbose:
+        print(message)
+
+
 class AocSolution(ABC):
     @property
     def day(self) -> int:
@@ -246,6 +243,7 @@ class AocSolution(ABC):
     def __init__(self):
         self.logger = logging.getLogger(f"AOC_Day_{self.day}")
         self.logger.addHandler(CustomFormatter.get_console_handler())
+        self.progress_verbose = True
 
     @staticmethod
     def _time_execution(func, *args, **kwargs) -> Result:
@@ -257,25 +255,51 @@ class AocSolution(ABC):
         result.execution_time = end_time - start_time
         return result
 
-    def _execute_part(self, part: int, is_example) -> None:
+    def execute_part(self, part: int, is_example: bool, verbose: bool = True, prefix: str = '') -> None:
         input_source = InputSource(self.day, part, is_example)
         solver = self.solve_part1 if part == 1 else self.solve_part2
         result = self._time_execution(solver, input_source)
-        time_str = f"{result.execution_time * 1000:.2f}ms" if result.execution_time < 1 else f"{result.execution_time:.2f}s"
-        print(status_color(f"[{'-' if is_example else result.status.value}] {bold(result.value)} (in {time_str})", result.status, is_example))
+        time_str = f"{result.execution_time * 1000:.2f} ms" if result.execution_time < 1 else f"{result.execution_time:.2f} s"
+        _print_verbose(prefix +
+                       status_color(f"[{'-' if is_example else result.status.value}] {bold(result.value)} ({time_str})",
+                                    result.status, is_example),
+                       verbose)
 
-    def run(self, part: Optional[int] = None, is_example: bool = False, debug: bool = False) -> None:
-        self.logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    def _set_logging_level(self, debug: bool, verbose: bool) -> None:
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+        elif verbose:
+            self.logger.setLevel(logging.INFO)
+        else:
+            self.logger.setLevel(logging.WARNING)
 
-        print(bold(f"\n2024 - Day {self.day} - {self.title}"))
+    def create_progress(self, total: int, desc: str = "Progress", show_count: bool = True) -> ProgressStatus:
+        """
+        Create a new progress status tracker
+
+        Args:
+            total: Total number of items
+            desc: Description to show before the progress
+            show_count: Whether to show count in addition to percentage
+
+        Returns:
+            ProgressStatus object for updating progress
+        """
+        return ProgressStatus(total, desc, show_count, self.progress_verbose)
+
+    def run(self, part: Optional[int] = None, is_example: bool = False, debug: bool = False,
+            verbose: bool = True) -> None:
+        self._set_logging_level(debug, verbose)
+        self.progress_verbose = verbose
+        _print_verbose(bold(f"\n2024 - Day {self.day} - {self.title}"), verbose)
 
         if part in {1, None}:
-            print(f"{bold('Part 1:')} {self.question_part1}")
-            self._execute_part(1, is_example)
+            _print_verbose(f"{bold('Part 1:')} {self.question_part1}", verbose)
+            self.execute_part(1, is_example, verbose)
 
         if part in {2, None}:
-            print(f"{bold('Part 2:')} {self.question_part2}")
-            self._execute_part(2, is_example)
+            _print_verbose(f"{bold('Part 2:')} {self.question_part2}", verbose)
+            self.execute_part(2, is_example, verbose)
 
     @abstractmethod
     def solve_part1(self, input_source: InputSource) -> Any:
