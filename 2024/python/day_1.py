@@ -1,8 +1,11 @@
-DAY = 1
-# ---------------------------
-# Advent of Code 2024 - Day 1
-# Part 1: Historian Hysteria
-# ---------------------------
+from collections import Counter
+
+from solution_base import AocSolution, InputSource, solution
+
+
+# -------------------
+# Part 1: Discription
+# -------------------
 
 # The Chief Historian is always present for the big Christmas sleigh launch,
 # but nobody has seen him in months! Last anyone heard, he was visiting
@@ -80,34 +83,9 @@ DAY = 1
 # Your actual left and right lists contain many location IDs. What is the
 # total distance between your lists?
 
-import os
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    left_list, right_list = list(), list()
-
-    for line in f.readlines():
-        left, right = map(int, line.split())
-        left_list.append(left)
-        right_list.append(right)
-
-    left_list.sort()
-    right_list.sort()
-
-    distance = sum(abs(left - right) for left, right in zip(left_list, right_list))
-
-    print(f"2024 - Day {DAY} - Part 1")
-    print("What is the total distance between your lists?")
-    print(distance)
-    # => 2904518
-    #    =======
-
-print()
-
-# ---------------------------
-# Advent of Code 2024 - Day 1
-# Part 2: Historian Hysteria
-# ---------------------------
+# -------------------
+# Part 2: Description
+# -------------------
 
 # Your analysis only confirmed what everyone feared: the two lists of
 # location IDs are indeed very different.
@@ -155,23 +133,55 @@ print()
 # Once again consider your left and right lists. What is their similarity
 # score?
 
-from collections import Counter
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
+def extract_lists(input_data: InputSource) -> tuple[list[int], list[int]]:
     left_list, right_list = list(), list()
 
-    for line in f.readlines():
-        left, right = map(int, line.split())
+    for left, right, *_ in input_data.read_lists_of_integers('   '):
         left_list.append(left)
         right_list.append(right)
 
-    counter = Counter(right_list)
+    return left_list, right_list
 
-    similarity = sum(left * counter[left] for left in left_list)
 
-    print(f"2024 - Day {DAY} - Part 2")
-    print("What is their similarity score?")
-    print(similarity)
-    # => 18650129
-    #    ==========
+class Day1(AocSolution):
+
+    @property
+    def title(self) -> str:
+        return "Historian Hysteria"
+
+    @property
+    def question_part1(self) -> str:
+        return "What is the total distance between your lists?"
+
+    @property
+    def question_part2(self) -> str:
+        return "What is their similarity score?"
+
+    @solution(2904518)
+    def solve_part1(self, input_data: InputSource) -> int:
+        left_list, right_list = extract_lists(input_data)
+
+        left_list.sort()
+        right_list.sort()
+
+        distances = [abs(l - r) for l, r in zip(left_list, right_list)]
+        return sum(distances)
+
+    @solution(18650129)
+    def solve_part2(self, input_data: InputSource) -> int:
+        left_list, right_list = extract_lists(input_data)
+
+        counter = Counter(right_list)
+
+        similarity = sum(left * counter[left] for left in left_list)
+        return similarity
+
+
+if __name__ == "__main__":
+    solution = Day1()
+
+    # Run with example data in debug mode
+    solution.run(part=None, is_example=False, debug=False)
+
+    # Run both parts with real input
+    # solution.run()

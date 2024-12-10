@@ -1,8 +1,9 @@
-DAY = 2
-# ---------------------------
-# Advent of Code 2024 - Day 2
-# Part 1: Red-Nosed Reports
-# ---------------------------
+from solution_base import AocSolution, solution, InputSource
+
+
+# -------------------
+# Part 1: Description
+# -------------------
 
 # Fortunately, the first location The Historians want to search isn't a long
 # walk from the Chief Historian's office.
@@ -53,57 +54,9 @@ DAY = 2
 
 # Analyze the unusual data from the engineers. How many reports are safe?
 
-import os
-
-
-def get_levels(line: str) -> list[int]:
-    return list(map(int, line.split()))
-
-
-def safe_distance(x: int, y: int) -> bool:
-    distance = abs(x - y)
-    return 1 <= distance <= 3
-
-
-def is_safe(report: list[int]) -> bool:
-    if len(report) < 2:
-        return True
-
-    is_inc = report[1] > report[0]
-    is_dec = report[1] < report[0]
-
-    if is_inc and is_dec:
-        raise ValueError("The values cannot be increasing and decreasing at the same time.")
-
-    for x, y in zip(report[0:-1:1], report[1::1]):
-        if is_inc and x >= y:
-            return False
-        if is_dec and x <= y:
-            return False
-        if not safe_distance(x, y):
-            return False
-
-    return True
-
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    reports = list(get_levels(line) for line in f.readlines())
-    safe_reports = list(filter(is_safe, reports))
-
-    print(f"2024 - Day {DAY} - Part 1")
-    print("How many reports are safe?")
-    print(len(safe_reports))
-    # => 371
-    #    =======
-
-print()
-
-
-# ---------------------------
-# Advent of Code 2024 - Day 2
-# Part 2: Red-Nosed Reports
-# ---------------------------
+# -------------------
+# Part 2: Description
+# -------------------
 
 # The engineers are surprised by the low number of safe reports until they
 # realize they forgot to tell you about the Problem Dampener.
@@ -130,6 +83,32 @@ print()
 # remove a single level from unsafe reports. How many reports are now safe?
 
 
+def in_safe_distance(x: int, y: int) -> bool:
+    distance = abs(x - y)
+    return 1 <= distance <= 3
+
+
+def is_safe(report: list[int]) -> bool:
+    if len(report) < 2:
+        return True
+
+    is_inc = report[1] > report[0]
+    is_dec = report[1] < report[0]
+
+    if is_inc and is_dec:
+        raise ValueError("The values cannot be increasing and decreasing at the same time.")
+
+    for x, y in zip(report[0:-1:1], report[1::1]):
+        if is_inc and x >= y:
+            return False
+        if is_dec and x <= y:
+            return False
+        if not in_safe_distance(x, y):
+            return False
+
+    return True
+
+
 def get_variations(report: list[int], gap_size: int) -> list[list[int]]:
     """return all variations where the number of dampening_level adjacent items are missing.
         for example: ([1, 2, 3], 1) -> [[2, 3], [1, 3], [1, 2]]
@@ -154,13 +133,38 @@ def is_dampened_safe(report: list[int]) -> bool:
     return is_safe(report) or can_be_dampened(report)
 
 
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    reports = list(get_levels(line) for line in f.readlines())
-    safe_reports = list(filter(is_dampened_safe, reports))
+class Day2(AocSolution):
 
-    print(f"2024 - Day {DAY} - Part 2")
-    print("How many reports are now safe?")
-    print(len(safe_reports))
-    # => 426
-    #    ==========
+    @property
+    def title(self) -> str:
+        return "Red-Nosed Reports"
+
+    @property
+    def question_part1(self) -> str:
+        return "How many reports are safe?"
+
+    @property
+    def question_part2(self) -> str:
+        return "How many reports are safe using the dampener?"
+
+    @solution(371)
+    def solve_part1(self, input_data: InputSource) -> int:
+        reports = input_data.read_lists_of_integers(' ')
+        safe_reports = list(filter(is_safe, reports))
+        return len(safe_reports)
+
+    @solution(426)
+    def solve_part2(self, input_data: InputSource) -> int:
+        reports = input_data.read_lists_of_integers(' ')
+        safe_reports = list(filter(is_dampened_safe, reports))
+        return len(safe_reports)
+
+
+if __name__ == "__main__":
+    solution = Day2()
+
+    # Run with example data in debug mode
+    # solution.run(part=1, is_example=True, debug=True)
+
+    # Run both parts with real input
+    solution.run()

@@ -1,16 +1,14 @@
-import logging
-import os
-import shutil
-from collections import deque
-from sys import stdout
+from enum import Enum
+from typing import Set, TypeAlias
+
+from solution_base import AocSolution, solution, InputSource
+
 
 # logging.basicConfig(level=logging.DEBUG)
 
-DAY = 6
-# ---------------------------
-# Advent of Code 2024 - Day 6
-# Part 1: Guard Gallivant
-# ---------------------------
+# -------------------
+# PART 1: Description
+# -------------------
 
 # The Historians use their fancy device again, this time to whisk you all
 # away to the North Pole prototype suit manufacturing lab... in the year
@@ -124,99 +122,9 @@ DAY = 6
 # Predict the path of the guard. How many distinct positions will the guard
 # visit before leaving the mapped area?
 
-Position = tuple[int, int, str]
-
-directions = {
-    'up': (0, -1, 'right'),
-    'right': (1, 0, 'down'),
-    'down': (0, 1, 'left'),
-    'left': (-1, 0, 'up')
-}
-
-
-def find_start_coordinates(grid: list[str]) -> Position:
-    start = None
-    for y, row in enumerate(grid):
-        try:
-            x = row.index('^')
-        except ValueError:
-            continue
-        start = (x, y, 'up')
-
-    if not start:
-        raise ValueError("There is no starting point")
-
-    return start
-
-
-def get_next_coordinate(pos: Position, direction: str) -> Position:
-    if direction not in directions.keys():
-        raise ValueError("The given direction must be valid")
-    x, y, _ = pos
-    logging.debug(f'curr: {pos}')
-    dx, dy, next_dir = directions[direction]
-    logging.debug(f'dir: {direction}, {dx, dy}')
-    logging.debug(f'next: {x + dx, y + dy}')
-    return x + dx, y + dy, direction
-
-
-def out_of_bounds(pos: Position, grid: list[str]) -> bool:
-    x, y, _ = pos
-    return x < 0 or x >= len(grid[0]) or y < 0 or y >= len(grid)
-
-
-def is_obstacle(pos: Position, grid: list[str]) -> bool:
-    x, y, _ = pos
-    return grid[y][x] == '#'
-
-
-def find_path(grid: list[str], start: Position) -> list[Position]:
-    path = [start]
-
-    curr_dir = 'up'
-    curr_pos = start
-    while True:
-        next_pos = get_next_coordinate(curr_pos, curr_dir)
-        if out_of_bounds(next_pos, grid):
-            break
-
-        if is_obstacle(next_pos, grid):
-            # rotate
-            logging.debug('obstacle -> rotate')
-            _, _, next_dir = directions[curr_dir]
-            curr_dir = next_dir
-        else:
-            # step forward
-            logging.debug('step forward')
-            path.append(next_pos)
-            curr_pos = next_pos
-        logging.debug('')
-
-    return path
-
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    grid = [line.strip() for line in f.readlines()]
-
-    start = find_start_coordinates(grid)
-    # path = find_path(grid, start)
-
-    # count_distinct_pos = len(set(path))
-
-    print(f"2024 - Day {DAY} - Part 1")
-    print("How many distinct positions will the guard visit before leaving the mapped area?")
-    # print(count_distinct_pos)
-    # => 4758
-    #    =======
-
-print()
-
-
-# ---------------------------
-# Advent of Code 2024 - Day 6
-# Part 2: Guard Gallivant
-# ---------------------------
+# -------------------
+# PART 2: Description
+# -------------------
 
 # While The Historians begin working around the guard's patrol route, you
 # borrow their fancy device and step outside the lab. From the safety of a
@@ -336,138 +244,172 @@ print()
 # You need to get the guard stuck in a loop by adding a single new
 # obstruction. How many different positions could you choose for this obstruction?
 
-def could_reach(pos_from: Position, pos_to: Position, direction: str, grid: list[str]) -> bool:
-    if pos_from[0] != pos_to[0] and pos_from[1] != pos_to[1]:
-        return False
-
-    logging.debug(f'search for: {pos_to} in dir "{direction}" from {pos_from}')
-    while pos_from != pos_to:
-        if is_obstacle(pos_from, grid):
-            return False
-        pos_from = get_next_coordinate(pos_from, direction)
-    return True
+class DIR(Enum):
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
 
 
-def possible_obstacle_ahead(curr_pos: Position, turns: deque, grid: list[str]) -> bool:
-    if len(turns) < 3:
-        return False
-    for i in range(len(turns) - 3):
-        turn, direction = turns[i]
-        if not could_reach(curr_pos, turn, direction, grid):
-            return False
-    return True
+Coord: TypeAlias = tuple[int, int]  # (x, y)
+Position: TypeAlias = tuple[Coord, int]  # ((x, y), direction)
+Grid: TypeAlias = list[list[str]]
+
+directions = [
+    (0, -1),  # up
+    (1, 0),  # right
+    (0, 1),  # down
+    (-1, 0)  # left
+]
 
 
-def find_possible_obstacles(grid: list[str], start: Position) -> set[Position]:
-    obstacles = set()
-    turns = deque()
-
-    curr_dir = 'up'
-    curr_pos = start
-    next_pos = get_next_coordinate(curr_pos, curr_dir)
-    while True:
-        if out_of_bounds(next_pos, grid):
-            break
-        if is_obstacle(next_pos, grid):
-            # rotate
-            logging.debug('obstacle -> rotate')
-            turns.append((curr_pos, curr_dir))
-            _, _, next_dir = directions[curr_dir]
-            curr_dir = next_dir
-        else:
-            # step forward
-            if possible_obstacle_ahead(curr_pos, turns, grid):
-                obstacles.add(next_pos)
-                logging.debug(f'FOUND obstacle: {next_pos}')
-            logging.debug('step forward')
-            curr_pos = next_pos
-        logging.debug('')
-        next_pos = get_next_coordinate(curr_pos, curr_dir)
-
-    return obstacles
-
-
-def path_loops(grid: list[str], start: Position) -> bool:
-    visited_states = set(start)
-
-    curr_dir = 'up'
-    curr_pos = start
-
-    while True:
-        state = (curr_pos[0], curr_pos[1], curr_dir)
-        if state in visited_states:
-            return True
-
-        next_pos = get_next_coordinate(curr_pos, curr_dir)
-
-        if out_of_bounds(next_pos, grid):
-            return False
-
-        if is_obstacle(next_pos, grid):
-            # rotate
-            _, _, next_dir = directions[curr_dir]
-            curr_dir = next_dir
-        else:
-            # step forward
-            visited_states.add(state)
-            curr_pos = next_pos
-
-    return False
-
-
-def modify_grid(grid: list[str], pos: Position) -> list[str]:
-    modified = grid[:]
-    x, y, _ = pos
-    line = modified[y]
-    modified[y] = line[:x] + '#' + line[x + 1:]
-    return modified
-
-
-def format_progress(current, total, position, loops_found):
-    percentage = (current / total) * 100
-    # Get terminal width for proper clearing
-    terminal_width = shutil.get_terminal_size().columns
-    # Format the progress message
-    message = f'Testing {current}/{total} ({percentage:.1f}%): {position} | Loops found: {loops_found}'
-    # Pad with spaces to clear the line completely, but put \r at the start
-    return '\r' + message.ljust(terminal_width - 1)  # -1 to account for \r
-
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    print(f"2024 - Day {DAY} - Part 2")
-
-    grid = [line.strip() for line in f.readlines()]
-
-    start = find_start_coordinates(grid)
-    path = find_path(grid, start)
-    print(f'path length: {len(path)}')
-
-    unique_positions = set([(x, y) for x, y, _ in path])
-    print(f'unique: {len(unique_positions)}')
-
-    possible_obstacles = set()
-    total_positions = len(path)
-    loops_found = 0
-
-    for idx, position in enumerate(path, 1):
-        x, y, _ = position
-        if (x, y) in possible_obstacles:
+def find_start_position(grid: Grid) -> Position:
+    for y, row in enumerate(grid):
+        try:
+            x = row.index('^')
+            return (x, y), DIR.UP.value
+        except ValueError:
             continue
+    raise ValueError("There is no starting point")
 
-        # update progress
-        stdout.write(format_progress(idx, total_positions, position, loops_found))
-        stdout.flush()
 
-        # modify grid and simulate
-        modified_grid = modify_grid(grid, position)
-        if path_loops(modified_grid, start):
-            loops_found += 1
-            possible_obstacles.add((x, y))
+def out_of_bounds(coord: Coord, grid: Grid) -> bool:
+    x, y = coord
+    x_out = x < 0 or len(grid[0]) <= x
+    y_out = y < 0 or len(grid) <= y
+    return x_out or y_out
 
-    stdout.write('\n')
 
-    print("How many different positions could you choose for this obstruction?")
-    print(len(possible_obstacles))
-    # => 1670
-    #    ==========
+def is_obstacle(coord: Coord, grid: Grid) -> bool:
+    x, y = coord
+    return grid[y][x] == '#'
+
+
+def step(pos: Position) -> Position:
+    (x, y), direction = pos
+    dx, dy = directions[direction]
+    return (x + dx, y + dy), direction
+
+
+def turn(pos: Position) -> Position:
+    coord, direction = pos
+    return coord, (direction + 1) % 4
+
+
+def find_path(grid: Grid, start_pos: Position) -> list[Position]:
+    path = [start_pos]
+
+    curr_pos = start_pos
+    while True:
+        next_pos = step(curr_pos)
+        next_coord = next_pos[0]
+        if out_of_bounds(next_coord, grid):
+            break
+
+        if is_obstacle(next_coord, grid):
+            next_pos = turn(curr_pos)
+        path.append(next_pos)
+        curr_pos = next_pos
+
+    return path
+
+
+def path_loops(grid: Grid, obstacle: Coord, start_pos: Position, previous_corners: Set[Position]) -> bool:
+    visited_corners = previous_corners.copy()
+
+    curr_pos = start_pos
+    corner_to_add: Position | None = None
+
+    while True:
+        if curr_pos in visited_corners:
+            return True
+        if corner_to_add:
+            visited_corners.add(corner_to_add)
+            corner_to_add = None
+
+        next_pos = step(curr_pos)
+        next_coord = next_pos[0]
+        if out_of_bounds(next_coord, grid):
+            return False
+
+        if is_obstacle(next_coord, grid) or next_coord == obstacle:
+            next_pos = turn(curr_pos)
+            corner_to_add = next_pos
+        curr_pos = next_pos
+
+
+class Day6(AocSolution):
+
+    @property
+    def title(self) -> str:
+        return "Guard Gallivant"
+
+    @property
+    def question_part1(self) -> str:
+        return "How many distinct positions will the guard visit before leaving the mapped area?"
+
+    @property
+    def question_part2(self) -> str:
+        return "How many different positions could you choose for this obstruction?"
+
+    @solution(4758)
+    def solve_part1(self, input_data: InputSource) -> int:
+        grid = input_data.read_char_grid()
+
+        start = find_start_position(grid)
+        path = find_path(grid, start)
+
+        distinct_coords = set([pos[0] for pos in path])
+        return len(distinct_coords)
+
+    @solution(1670)
+    def solve_part2(self, input_data: InputSource) -> int:
+        grid = input_data.read_char_grid()
+
+        start_pos = find_start_position(grid)
+        path = find_path(grid, start_pos)
+
+        possible_obstacles = set()
+        total_positions = len(path)
+        loops_found = 0
+
+        progress = self.create_progress(total_positions, 'Searching for loops')
+
+        visited_corners: Set[Position] = set()
+        tested_coords: Set[Coord] = set()
+        curr_pos = start_pos
+        corner_to_add: Position | None = None
+        for next_pos in path[1:]:
+            progress.update()
+
+            obstacle, next_dir = next_pos
+            if obstacle in tested_coords:
+                continue
+
+            if path_loops(grid, obstacle, curr_pos, visited_corners):
+                loops_found += 1
+                possible_obstacles.add(obstacle)
+
+            tested_coords.add(obstacle)
+
+            if corner_to_add:
+                visited_corners.add(corner_to_add)
+                corner_to_add = None
+
+            if next_dir != curr_pos[1]:
+                corner_to_add = next_pos
+
+            curr_pos = next_pos
+
+        progress.finish()
+        return loops_found
+
+
+if __name__ == "__main__":
+    solution = Day6()
+
+    # Run with example data in debug mode
+    # solution.run(part=1, is_example=True, debug=True)
+
+    # Run both parts with real input
+    solution.run(is_example=False)

@@ -1,11 +1,12 @@
 import re
 from itertools import product
 
-DAY = 4
-# ---------------------------
-# Advent of Code 2024 - Day 4
-# Part 1: Ceres Search
-# ---------------------------
+from solution_base import AocSolution, solution, InputSource
+
+
+# -------------------
+# Part 1: Description
+# -------------------
 
 # "Looks like the Chief's not here. Next!" One of The Historians pulls out a
 # device and pushes the only button on it. After a brief flash, you recognize
@@ -57,7 +58,37 @@ DAY = 4
 
 # Take a look at the little Elf's word search. How many times does XMAS appear?
 
-import os
+# -------------------
+# PART 2: Description
+# -------------------
+
+# The Elf looks quizzically at you. Did you misunderstand the assignment?
+
+# Looking for the instructions, you flip over the word search to find that this isn't actually an XMAS puzzle; it's an X-MAS puzzle in which you're supposed to find two MAS in the shape of an X. One way to achieve that is like this:
+
+# M.S
+# .A.
+# M.S
+
+# Irrelevant characters have again been replaced with . in the above diagram. Within the X, each MAS can be written forwards or backwards.
+
+# Here's the same example from before, but this time all of the X-MASes have been kept instead:
+
+# .M.S......
+# ..A..MSMS.
+# .M.S.MAA..
+# ..A.ASMSM.
+# .M.S.M....
+# ..........
+# S.S.S.S.S.
+# .A.A.A.A..
+# M.M.M.M.M.
+# ..........
+
+# In this example, an X-MAS appears 9 times.
+
+# Flip the word search from the instructions back over to the word search
+# side and try again. How many times does an X-MAS appear?
 
 
 def extract_diagonal(rows: list[str], start_x: int, start_y: int, dx: int, dy: int) -> str:
@@ -95,94 +126,67 @@ def get_diagonals_right(rows, cols):
     return diagonals
 
 
-def count_pattern_in_all_directions(rows, cols, pattern):
-    """Count occurrences of the given pattern in all directions."""
-    horizontal = '-'.join(rows)
-    vertical = '-'.join(cols)
-    diagonals_left = '-'.join(get_diagonals_left(rows, cols))
-    diagonals_right = '-'.join(get_diagonals_right(rows, cols))
-
-    all_directions = '-'.join([horizontal, vertical, diagonals_left, diagonals_right])
-    return len(re.findall(f"(?={pattern})", all_directions))
+x_mas_patterns = [
+    [(-1, -1, 'M'), (-1, +1, 'M'), (+1, -1, 'S'), (+1, +1, 'S')],  # Ms on left
+    [(-1, -1, 'M'), (+1, -1, 'M'), (-1, +1, 'S'), (+1, +1, 'S')],  # Ms above
+    [(+1, +1, 'M'), (+1, -1, 'M'), (-1, -1, 'S'), (-1, +1, 'S')],  # Ms on right
+    [(+1, +1, 'M'), (-1, +1, 'M'), (-1, -1, 'S'), (+1, -1, 'S')],  # Ms below
+]
 
 
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    rows = list(map(lambda l: l.strip(), f.readlines()))
-    cols = list(map(''.join, zip(*rows)))
+class Day4(AocSolution):
 
-    count = count_pattern_in_all_directions(rows, cols, "(?=XMAS|SAMX)")
+    @property
+    def title(self) -> str:
+        return "Ceres Search"
 
-    print(f"2024 - Day {DAY} - Part 1")
-    print("How many times does XMAS appear?")
-    print(count)
-    # => 2557
-    #    =======
+    @property
+    def question_part1(self) -> str:
+        return "How many times does XMAS appear?"
 
-print()
+    @property
+    def question_part2(self) -> str:
+        return "How many times does an X-MAS appear?"
 
+    @solution(2557)
+    def solve_part1(self, input_data: InputSource) -> int:
+        rows = input_data.read_lines()
+        cols = list(map(''.join, zip(*rows)))
 
-# ---------------------------
-# Advent of Code 2024 - Day 4
-# Part 2: Ceres Search
-# ---------------------------
+        horizontal = '-'.join(rows)
+        vertical = '-'.join(cols)
+        diagonals_left = '-'.join(get_diagonals_left(rows, cols))
+        diagonals_right = '-'.join(get_diagonals_right(rows, cols))
 
-# The Elf looks quizzically at you. Did you misunderstand the assignment?
+        all_directions = '-'.join([horizontal, vertical, diagonals_left, diagonals_right])
 
-# Looking for the instructions, you flip over the word search to find that this isn't actually an XMAS puzzle; it's an X-MAS puzzle in which you're supposed to find two MAS in the shape of an X. One way to achieve that is like this:
+        occurrences = re.findall(r"(?=XMAS|SAMX)", all_directions)
+        return len(occurrences)
 
-# M.S
-# .A.
-# M.S
+    @solution(1854)
+    def solve_part2(self, input_data: InputSource) -> int:
+        rows = input_data.read_lines()
 
-# Irrelevant characters have again been replaced with . in the above diagram. Within the X, each MAS can be written forwards or backwards.
+        def get_all_coordinates() -> list[tuple[int]]:
+            x_range = range(1, len(rows[0]) - 1)
+            y_range = range(1, len(rows) - 1)
+            return list(product(x_range, y_range))
 
-# Here's the same example from before, but this time all of the X-MASes have been kept instead:
-
-# .M.S......
-# ..A..MSMS.
-# .M.S.MAA..
-# ..A.ASMSM.
-# .M.S.M....
-# ..........
-# S.S.S.S.S.
-# .A.A.A.A..
-# M.M.M.M.M.
-# ..........
-
-# In this example, an X-MAS appears 9 times.
-
-# Flip the word search from the instructions back over to the word search
-# side and try again. How many times does an X-MAS appear?
-
-def get_coordinates(rows: list[str]) -> list[tuple[int]]:
-    return list(product(range(1, len(rows) - 1), range(1, len(rows[0]) - 1)))
+        count = 0
+        for x, y in get_all_coordinates():
+            if rows[y][x] != 'A':
+                continue
+            for pattern in x_mas_patterns:
+                if all(rows[y + dy][x + dx] == char for dx, dy, char in pattern):
+                    count += 1
+        return count
 
 
-def count_x_mas(rows: list[str]) -> int:
-    patterns = [
-        [(-1, -1, 'M'), (-1, +1, 'M'), (+1, -1, 'S'), (+1, +1, 'S')],  # Ms on left
-        [(-1, -1, 'M'), (+1, -1, 'M'), (-1, +1, 'S'), (+1, +1, 'S')],  # Ms above
-        [(+1, +1, 'M'), (+1, -1, 'M'), (-1, -1, 'S'), (-1, +1, 'S')],  # Ms on right
-        [(+1, +1, 'M'), (-1, +1, 'M'), (-1, -1, 'S'), (+1, -1, 'S')],  # Ms below
-    ]
+if __name__ == "__main__":
+    solution = Day4()
 
-    count = 0
-    for x, y in get_coordinates(rows):
-        if rows[y][x] != 'A':
-            continue
-        for pattern in patterns:
-            if all(rows[y + dy][x + dx] == char for dx, dy, char in pattern):
-                count += 1
-    return count
+    # Run with example data in debug mode
+    # solution.run(part=1, is_example=True, debug=True)
 
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    rows = list(map(lambda l: l.strip(), f.readlines()))
-
-    print(f"2024 - Day {DAY} - Part 2")
-    print("How many times does an X-MAS appear?")
-    print(count_x_mas(rows))
-    # => 1854
-    #    ==========
+    # Run both parts with real input
+    solution.run()

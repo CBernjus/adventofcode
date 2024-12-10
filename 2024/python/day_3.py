@@ -1,8 +1,11 @@
-DAY = 3
-# ---------------------------
-# Advent of Code 2024 - Day 3
-# Part 1: Mull It Over
-# ---------------------------
+import re
+
+from solution_base import AocSolution, solution, InputSource
+
+
+# -------------------
+# Part 1: Description
+# -------------------
 
 # "Our computers are having issues, so I have no idea if we have any Chief
 # Historians in stock! You're welcome to check the warehouse, though," says
@@ -35,32 +38,9 @@ DAY = 3
 # Scan the corrupted memory for uncorrupted mul instructions. What do you get
 # if you add up all of the results of the multiplications?
 
-import os
-import re
-
-
-def sum_of_mul(s: str) -> int:
-    operations = re.findall(r"mul\((\d{1,3}),(\d{1,3})\)", s)
-    return sum(int(x) * int(y) for x, y in operations)
-
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}_1.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    result = sum_of_mul(f.read())
-
-    print(f"2024 - Day {DAY} - Part 1")
-    print("What do you get if you add up all of the results of the multiplications?")
-    print(result)
-    # => 184122457
-    #    =========
-
-print()
-
-
-# ---------------------------
-# Advent of Code 2024 - Day 3
-# Part 2: Mull It Over
-# ---------------------------
+# -------------------
+# Part 2: Description
+# -------------------
 
 # As you scan through the corrupted memory, you notice that some of the
 # conditional statements are also still intact. If you handle some of the
@@ -90,6 +70,12 @@ print()
 # Handle the new instructions; what do you get if you add up all of the
 # results of just the enabled multiplications?
 
+
+def sum_of_mul(s: str) -> int:
+    operations = re.findall(r"mul\((\d{1,3}),(\d{1,3})\)", s)
+    return sum(int(x) * int(y) for x, y in operations)
+
+
 def conditional_sum_of_mul(s: str) -> int:
     res = 0
 
@@ -109,12 +95,36 @@ def conditional_sum_of_mul(s: str) -> int:
     return res
 
 
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}_2.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    memory = f.read()
+class Day3(AocSolution):
 
-    print(f"2024 - Day {DAY} - Part 2")
-    print("What do you get if you add up all of the results of just the enabled multiplications?")
-    print(conditional_sum_of_mul(memory))
-    # => 107862689
-    #    ==========
+    @property
+    def title(self) -> str:
+        return "Mull It Over"
+
+    @property
+    def question_part1(self) -> str:
+        return "What is the sum the results of the multiplications?"
+
+    @property
+    def question_part2(self) -> str:
+        return "What is the sum of the results of just the enabled multiplications?"
+
+    @solution(184122457)
+    def solve_part1(self, input_data: InputSource) -> int:
+        memory = input_data.read_raw()
+        return sum_of_mul(memory)
+
+    @solution(107862689)
+    def solve_part2(self, input_data: InputSource) -> int:
+        memory = input_data.read_raw()
+        return conditional_sum_of_mul(memory)
+
+
+if __name__ == "__main__":
+    solution = Day3()
+
+    # Run with example data in debug mode
+    # solution.run(part=1, is_example=True, debug=True)
+
+    # Run both parts with real input
+    solution.run()

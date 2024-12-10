@@ -1,8 +1,8 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 from itertools import product
 
-from solution_base import AocSolution, solution, InputSource, create_progress
+from solution_base import AocSolution, solution, InputSource
 
 
 # -------------------
@@ -139,6 +139,35 @@ def is_achievable_equation(eq: Equation, operators: list[Operator]) -> bool:
     return False
 
 
+def test_equation_rec(available_operators: list[Operator],
+                      numbers: list[int],
+                      exp_result: int,
+                      curr_value: int) -> bool:
+    if len(numbers) == 0:
+        return curr_value == exp_result
+
+    for op in available_operators:
+        new_value = curr_value
+        if op == Operator.PLUS:
+            new_value += numbers[0]
+        elif op == Operator.TIMES:
+            new_value *= numbers[0]
+        elif op == Operator.CONCATENATE:
+            new_value = int(str(new_value) + str(numbers[0]))
+
+        if new_value > exp_result:
+            continue
+
+        if test_equation_rec(available_operators, numbers[1:], exp_result, new_value):
+            return True
+
+    return False
+
+
+def is_achievable_equation_rec(eq: Equation, operators: list[Operator]) -> bool:
+    return test_equation_rec(operators, eq.numbers[1:], eq.result, eq.numbers[0])
+
+
 class Day7(AocSolution):
 
     @property
@@ -157,7 +186,7 @@ class Day7(AocSolution):
     def solve_part1(self, input_data: InputSource) -> int:
         equations = extract_equations(input_data.read_lines())
         operators = [Operator.PLUS, Operator.TIMES]
-        equations = list(filter(lambda eq: is_achievable_equation(eq, operators), equations))
+        equations = list(filter(lambda eq: is_achievable_equation_rec(eq, operators), equations))
 
         self.logger.debug(equations)
 
@@ -170,10 +199,10 @@ class Day7(AocSolution):
 
         possible = []
 
-        progress = create_progress(len(equations), 'Testing Equations')
+        progress = self.create_progress(len(equations), 'Testing Equations')
         for eq in equations:
             progress.update()
-            if is_achievable_equation(eq, operators):
+            if is_achievable_equation_rec(eq, operators):
                 possible.append(eq)
         progress.finish()
 
@@ -184,7 +213,7 @@ if __name__ == "__main__":
     solution = Day7()
 
     # Run with example data in debug mode
-    solution.run(part=None, is_example=True, debug=False)
+    # solution.run(part=None, is_example=True, debug=False)
 
     # Run both parts with real input
-    # solution.run()
+    solution.run()

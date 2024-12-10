@@ -1,10 +1,11 @@
 from collections import defaultdict, deque
 
-DAY = 5
-# ---------------------------
-# Advent of Code 2024 - Day 5
-# Part 1: Print Queue
-# ---------------------------
+from solution_base import AocSolution, solution, InputSource
+
+
+# -------------------
+# PART 1: Description
+# -------------------
 
 # Satisfied with their search on Ceres, the squadron of scholars suggests
 # subsequently scanning the stationery stacks of sub-basement 17.
@@ -120,7 +121,27 @@ DAY = 5
 # Determine which updates are already in the correct order. What do you get
 # if you add up the middle page number from those correctly-ordered updates?
 
-import os
+# -------------------
+# PART 2: Description
+# -------------------
+
+# While the Elves get to work printing the correctly-ordered updates, you
+# have a little time to fix the rest of them.
+
+# For each of the incorrectly-ordered updates, use the page ordering rules to
+# put the page numbers in the right order. For the above example, here are
+# the three incorrectly-ordered updates and their correct orderings:
+
+# - 75,97,47,61,53 becomes 97,75,47,61,53.
+# - 61,13,29 becomes 61,29,13.
+# - 97,13,75,29,47 becomes 97,75,47,29,13.
+
+# After taking only the incorrectly-ordered updates and ordering them
+# correctly, their middle page numbers are 47, 29, and 47. Adding these
+# together produces 123.
+
+# Find the updates which are not in the correct order. What do you get if you
+# add up the middle page numbers after correctly ordering just those updates?
 
 
 def prepare_input(file_content: str) -> tuple[list[tuple[int]], list[list[int]]]:
@@ -146,45 +167,6 @@ def is_valid_update(update: list[int], rules: list[tuple[int]]) -> bool:
 def middle_number(update: list[int]) -> int:
     return update[len(update) // 2]
 
-
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    rules, updates = prepare_input(f.read())
-
-    valid_updates = list(filter(lambda update: is_valid_update(update, rules), updates))
-    result = sum(map(middle_number, valid_updates))
-
-    print(f"2024 - Day {DAY} - Part 1")
-    print("What do you get if you add up the middle page number from those correctly-ordered updates?")
-    print(result)
-    # => 7024
-    #    =======
-
-print()
-
-
-# ---------------------------
-# Advent of Code 2024 - Day 5
-# Part 2: Print Queue
-# ---------------------------
-
-# While the Elves get to work printing the correctly-ordered updates, you
-# have a little time to fix the rest of them.
-
-# For each of the incorrectly-ordered updates, use the page ordering rules to
-# put the page numbers in the right order. For the above example, here are
-# the three incorrectly-ordered updates and their correct orderings:
-
-# - 75,97,47,61,53 becomes 97,75,47,61,53.
-# - 61,13,29 becomes 61,29,13.
-# - 97,13,75,29,47 becomes 97,75,47,29,13.
-
-# After taking only the incorrectly-ordered updates and ordering them
-# correctly, their middle page numbers are 47, 29, and 47. Adding these
-# together produces 123.
-
-# Find the updates which are not in the correct order. What do you get if you
-# add up the middle page numbers after correctly ordering just those updates?
 
 def create_graph(rules: list[tuple[int]]) -> tuple[dict[int, list[int]], dict[int]]:
     graph = defaultdict(list)
@@ -220,17 +202,45 @@ def reorder_update(update: list[int], rules: list[tuple[int]]) -> list[int]:
     return sorted_order
 
 
-# with open(os.path.dirname(__file__) + f"/../examples/example_{DAY}.txt") as f:
-with open(os.path.dirname(__file__) + f"/../inputs/input_{DAY}.txt") as f:
-    rules, updates = prepare_input(f.read())
+class Day5(AocSolution):
 
-    invalid_updates = [update for update in updates if not is_valid_update(update, rules)]
-    reordered_updates = [reorder_update(update, rules) for update in invalid_updates]
+    @property
+    def title(self) -> str:
+        return "Print Queue"
 
-    result = sum(map(middle_number, reordered_updates))
+    @property
+    def question_part1(self) -> str:
+        return "What do you get if you add up the middle page number from those correctly-ordered updates?"
 
-    print(f"2024 - Day {DAY} - Part 2")
-    print("What do you get if you add up the middle page numbers after correctly ordering just those updates?")
-    print(result)
-    # => 4151
-    #    ==========
+    @property
+    def question_part2(self) -> str:
+        return "What do you get if you add up the middle page numbers after correctly ordering just those updates?"
+
+    @solution(7024)
+    def solve_part1(self, input_data: InputSource) -> int:
+        rules, updates = prepare_input(input_data.read_raw())
+
+        valid_updates = list(filter(lambda update: is_valid_update(update, rules), updates))
+
+        middle_numbers = list(map(middle_number, valid_updates))
+        return sum(middle_numbers)
+
+    @solution(4151)
+    def solve_part2(self, input_data: InputSource) -> int:
+        rules, updates = prepare_input(input_data.read_raw())
+
+        invalid_updates = [update for update in updates if not is_valid_update(update, rules)]
+        reordered_updates = [reorder_update(update, rules) for update in invalid_updates]
+
+        middle_numbers = list(map(middle_number, reordered_updates))
+        return sum(middle_numbers)
+
+
+if __name__ == "__main__":
+    solution = Day5()
+
+    # Run with example data in debug mode
+    # solution.run(part=1, is_example=True, debug=True)
+
+    # Run both parts with real input
+    solution.run()
