@@ -134,23 +134,36 @@ class Result:
 
 
 class InputSource:
-    def __init__(self, day: int, part: int, is_example: bool):
+    def __init__(self, day: int, part: int, is_example: bool, example_suffix: str = None):
         self.day = day
         self.part = part
         self.is_example = is_example
+        self.example_suffix = example_suffix
         init()
 
     def _get_input_path(self) -> str:
         base_dir = os.path.dirname(os.path.dirname(__file__))
-        folder = "examples" if self.is_example else "inputs"
+        file_prefix = "example" if self.is_example else "input"
+        folder = file_prefix + 's'
 
         # Try part-specific input first
-        specific_path = os.path.join(base_dir, folder, f"{folder[:-1]}_{self.day}_{self.part}.txt")
+        specific_path = os.path.join(base_dir, folder, f"{file_prefix}_{self.day}_{self.part}.txt")
         if os.path.exists(specific_path):
             return specific_path
 
+        # Try example input with suffix next
+        if self.is_example and self.example_suffix:
+            suffix_specific_path = os.path.join(base_dir, folder,
+                                                f"{file_prefix}_{self.day}_{self.part}_{self.example_suffix}.txt")
+            if os.path.exists(suffix_specific_path):
+                return suffix_specific_path
+
+            suffix_path = os.path.join(base_dir, folder, f"{file_prefix}_{self.day}_{self.example_suffix}.txt")
+            if os.path.exists(suffix_path):
+                return suffix_path
+
         # Fall back to common input
-        return os.path.join(base_dir, folder, f"{folder[:-1]}_{self.day}.txt")
+        return os.path.join(base_dir, folder, f"{file_prefix}_{self.day}.txt")
 
     def read_raw(self) -> str:
         """Read the raw input file"""
@@ -177,7 +190,7 @@ class InputSource:
         """Read input as list of integers"""
         return [int(line) for line in self.read_lines()]
 
-    def read_digits(self) -> List[List[int]]:
+    def read_digit_grid(self) -> List[List[int]]:
         """Read input as 2D grid of single digits"""
         return [[int(d) for d in line] for line in self.read_lines()]
 
@@ -255,12 +268,13 @@ class AocSolution(ABC):
         result.execution_time = end_time - start_time
         return result
 
-    def execute_part(self, part: int, is_example: bool, verbose: bool = True, prefix: str = '') -> None:
-        input_source = InputSource(self.day, part, is_example)
+    def execute_part(self, part: int, is_example: bool, example_suffix: str = None, verbose: bool = True,
+                     log_prefix: str = '') -> None:
+        input_source = InputSource(self.day, part, is_example, example_suffix)
         solver = self.solve_part1 if part == 1 else self.solve_part2
         result = self._time_execution(solver, input_source)
         time_str = f"{result.execution_time * 1000:.2f} ms" if result.execution_time < 1 else f"{result.execution_time:.2f} s"
-        _print_verbose(prefix +
+        _print_verbose(log_prefix +
                        status_color(f"[{'-' if is_example else result.status.value}] {bold(result.value)} ({time_str})",
                                     result.status, is_example),
                        verbose)
@@ -287,7 +301,7 @@ class AocSolution(ABC):
         """
         return ProgressStatus(total, desc, show_count, self.progress_verbose)
 
-    def run(self, part: Optional[int] = None, is_example: bool = False, debug: bool = False,
+    def run(self, part: Optional[int] = None, is_example: bool = False, example_suffix: str = None, debug: bool = False,
             verbose: bool = True) -> None:
         self._set_logging_level(debug, verbose)
         self.progress_verbose = verbose
@@ -295,11 +309,11 @@ class AocSolution(ABC):
 
         if part in {1, None}:
             _print_verbose(f"{bold('Part 1:')} {self.question_part1}", verbose)
-            self.execute_part(1, is_example, verbose)
+            self.execute_part(1, is_example, example_suffix, verbose)
 
         if part in {2, None}:
             _print_verbose(f"{bold('Part 2:')} {self.question_part2}", verbose)
-            self.execute_part(2, is_example, verbose)
+            self.execute_part(2, is_example, example_suffix, verbose)
 
     @abstractmethod
     def solve_part1(self, input_source: InputSource) -> Any:

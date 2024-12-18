@@ -187,7 +187,7 @@ class AocRunner:
         print(f"\n{bold(f'Day {solution.day:02d} - {solution.title}')}")
         for part in [1, 2]:
             try:
-                solution.execute_part(part, False, True, bold(f'Part {part}: '))
+                solution.execute_part(part, False, None, True, bold(f'Part {part}: '))
             except Exception as e:
                 tb = traceback.extract_tb(sys.exc_info()[2])
                 error_line = tb[-1].lineno
